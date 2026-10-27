@@ -10,8 +10,8 @@ on:
       - "main"
 
 env:
-  # TODO: drop once citycom-mv-api 1.1.0 is on PyPI; requirements.txt pins it.
-  CITYCOM_MV_API: "citycom-mv-api @ git+https://github.com/Shenharo/py-citycom-mv-api@feature/2fa-login"
+  # Same version as manifest.json; installed from the tag so CI does not wait on PyPI.
+  CITYCOM_MV_API: "citycom-mv-api @ git+https://github.com/Shenharo/py-citycom-mv-api@v1.1.0"
 
 jobs:
   pytest:
