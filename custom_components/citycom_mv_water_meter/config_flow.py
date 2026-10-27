@@ -107,6 +107,7 @@ class CitycomFlowHandler(ConfigFlow, domain=DOMAIN):
         self._data: dict[str, Any] = {}
         self._client: CitycomApiClient | None = None
         self._login_task: asyncio.Task | None = None
+        self._progress_shown = False
         self._errors: dict[str, str] = {}
 
     async def async_step_user(
@@ -153,6 +154,7 @@ class CitycomFlowHandler(ConfigFlow, domain=DOMAIN):
                 )
             )
         if not self._login_task.done():
+            self._progress_shown = True
             return self.async_show_progress(
                 step_id="login",
                 progress_action="wait_for_email",
@@ -160,11 +162,22 @@ class CitycomFlowHandler(ConfigFlow, domain=DOMAIN):
             )
 
         task, self._login_task = self._login_task, None
+        next_step = self._login_result(task)
+        if self._progress_shown:
+            self._progress_shown = False
+            return self.async_show_progress_done(next_step_id=next_step)
+        # The task is started eagerly and can finish (e.g. on a rejected
+        # password) before any progress was shown. progress_done would then
+        # hand the submitted form to the next step, so call it directly.
+        return await getattr(self, f"async_step_{next_step}")()
+
+    def _login_result(self, task: asyncio.Task) -> str:
+        """Return the step to go to after the login task."""
         try:
             task.result()
         except CodeNotFoundError as err:
             LOGGER.warning(err)
-            return self.async_show_progress_done(next_step_id="code")
+            return "code"
         except CitycomApiClientAuthenticationError as err:
             LOGGER.warning(err)
             self._errors = {"base": "auth"}
@@ -184,8 +197,8 @@ class CitycomFlowHandler(ConfigFlow, domain=DOMAIN):
             LOGGER.exception(err)
             self._errors = {"base": "unknown"}
         else:
-            return self.async_show_progress_done(next_step_id="finish")
-        return self.async_show_progress_done(next_step_id="user")
+            return "finish"
+        return "user"
 
     async def async_step_code(
         self, user_input: dict[str, Any] | None = None
