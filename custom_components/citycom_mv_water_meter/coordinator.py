@@ -77,6 +77,8 @@ class CitycomDataUpdateCoordinator(DataUpdateCoordinator[dict[int, "MeterReading
         self.alerts: dict[int, list[Alert]] = {}
         # Total consumption of the previous full day, per meter.
         self.yesterday: dict[int, float] = {}
+        # Total consumption of the 7 full days before today, per meter.
+        self.last_7_days: dict[int, float] = {}
         self._history_fetched: datetime | None = None
 
     async def _async_ensure_token(self, *, force: bool = False) -> None:
@@ -186,5 +188,13 @@ class CitycomDataUpdateCoordinator(DataUpdateCoordinator[dict[int, "MeterReading
             name = f"Water meter {meter.number or meter_id}"
             import_history(self.hass, meter_id, name, series, reading.last_reading)
             yesterday = (today - timedelta(days=1)).date()
-            if (value := daily_totals(series).get(yesterday)) is not None:
+            totals = daily_totals(series)
+            if (value := totals.get(yesterday)) is not None:
                 self.yesterday[meter_id] = value
+            week = [
+                totals[day]
+                for offset in range(1, 8)
+                if (day := (today - timedelta(days=offset)).date()) in totals
+            ]
+            if week:
+                self.last_7_days[meter_id] = round(sum(week), 3)

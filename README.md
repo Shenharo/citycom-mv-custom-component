@@ -12,10 +12,13 @@ For each meter:
 | Consumption this month | Water used since the start of the month, in m³. |
 | Last reading time | When the meter last reported. |
 | Consumption yesterday | Total water used the previous day, in m³. |
+| Consumption last 7 days | Total water used over the 7 full days before today, in m³. |
 | Alert (binary) | On while Citycom reports an active alert (leak, abnormal flow...). The `alerts` attribute lists them. |
 | Not reporting (binary, diagnostic) | On when the meter has not reported for 24 hours. |
 
 The last 35 days of daily consumption are also imported as long-term statistics (`citycom_mv_water_meter:meter_<id>_consumption`), refreshed every 3 hours. Add them to the Energy dashboard to see past usage per day.
+
+Use **Download diagnostics** on the integration page when reporting a problem; passwords and tokens are redacted.
 
 Data is polled every 30 minutes by default. Polling only reads data and sends no email; change the interval with the integration's **Configure** button.
 

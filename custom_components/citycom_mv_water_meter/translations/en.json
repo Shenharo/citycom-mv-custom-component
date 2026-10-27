@@ -52,6 +52,9 @@
             },
             "consumption_yesterday": {
                 "name": "Consumption yesterday"
+            },
+            "consumption_last_7_days": {
+                "name": "Consumption last 7 days"
             }
         },
         "binary_sensor": {
