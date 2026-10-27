@@ -75,6 +75,8 @@ class CitycomDataUpdateCoordinator(DataUpdateCoordinator[dict[int, "MeterReading
         self.imap = imap
         self.meters: dict[int, Meter] = {}
         self.alerts: dict[int, list[Alert]] = {}
+        # Alert type titles by id, fetched once the first alert shows up.
+        self.alert_types: dict[int, str] = {}
         # Total consumption of the previous full day, per meter.
         self.yesterday: dict[int, float] = {}
         # Total consumption of the 7 full days before today, per meter.
@@ -168,6 +170,21 @@ class CitycomDataUpdateCoordinator(DataUpdateCoordinator[dict[int, "MeterReading
                 )
             except (UpdateFailed, CitycomApiClientError) as err:
                 LOGGER.debug("Alerts of meter %s unavailable: %s", meter_id, err)
+        if any(self.alerts.values()) and not self.alert_types:
+            await self._async_load_alert_types()
+
+    async def _async_load_alert_types(self) -> None:
+        """Fetch the readable names of the alert types; ids are shown without it."""
+        try:
+            types = await self._async_call(self.client.async_get_alert_types)
+        except (UpdateFailed, CitycomApiClientError) as err:
+            LOGGER.debug("Alert types unavailable: %s", err)
+            return
+        self.alert_types = {
+            t.alert_type_id: t.title
+            for t in types
+            if t.alert_type_id is not None and t.title
+        }
 
     async def _async_update_history(self, readings: dict[int, MeterReadings]) -> None:
         """Import daily history as statistics, at most every few hours."""

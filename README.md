@@ -13,10 +13,21 @@ For each meter:
 | Last reading time | When the meter last reported. |
 | Consumption yesterday | Total water used the previous day, in m³. |
 | Consumption last 7 days | Total water used over the 7 full days before today, in m³. |
+| Cost this month (estimate) | Only when prices are set (see below). In your Home Assistant currency. |
 | Alert (binary) | On while Citycom reports an active alert (leak, abnormal flow...). The `alerts` attribute lists them. |
 | Not reporting (binary, diagnostic) | On when the meter has not reported for 24 hours. |
 
 The last 35 days of daily consumption are also imported as long-term statistics (`citycom_mv_water_meter:meter_<id>_consumption`), refreshed every 3 hours. Add them to the Energy dashboard to see past usage per day.
+
+### Cost estimate
+
+Citycom does not show prices to residents, so the cost sensor is calculated from prices you enter with the **Configure** button (copy them from your water bill):
+
+- **Regular price per m³** (required to create the sensor).
+- **Over-usage price per m³** (defaults to the regular price), **drain price per m³** and a **fixed monthly fee** (all optional).
+- **Monthly allowance per person (m³)**: water up to the allowance times the number of people is charged at the regular price, the rest at the over-usage price. The number of people comes from your Citycom account unless you enter it.
+
+It is an estimate of this month's consumption so far; bills may differ (for example because of billing periods or taxes).
 
 Use **Download diagnostics** on the integration page when reporting a problem; passwords and tokens are redacted.
 

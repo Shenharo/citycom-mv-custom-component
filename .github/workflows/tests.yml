@@ -12,7 +12,7 @@ on:
 
 env:
   # Same version as manifest.json; installed from the tag so CI does not wait on PyPI.
-  CITYCOM_MV_API: "citycom-mv-api @ git+https://github.com/Shenharo/py-citycom-mv-api@v1.2.0"
+  CITYCOM_MV_API: "citycom-mv-api @ git+https://github.com/Shenharo/py-citycom-mv-api@v1.2.1"
 
 jobs:
   pytest:

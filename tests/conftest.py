@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from citycom_mv_api.models.Alert import Alert
+from citycom_mv_api.models.AlertType import AlertType
 from citycom_mv_api.models.ConsumptionTimeSeries import ConsumptionTimeSeries
 from citycom_mv_api.models.CustomerInformation import CustomerInformation
 from citycom_mv_api.models.jwt import JWT
@@ -124,7 +125,7 @@ def mock_client():
 
     async def alerts(meter_id):
         if meter_id == "111":
-            return [Alert(meter_id=111, alert_type="Leak")]
+            return [Alert(meter_id=111, alert_type_id=7, date=datetime(2026, 10, 27, 8, 30))]
         return []
 
     async def history(meter_id, period, from_date, to_date):
@@ -135,7 +136,11 @@ def mock_client():
         series.add(today, 0.5)
         return series
 
+    async def alert_types():
+        return [AlertType(alert_type_id=7, title="Leak"), AlertType(alert_type_id=8, title="Other")]
+
     client.get_active_alerts = AsyncMock(side_effect=alerts)
+    client.get_alert_types = AsyncMock(side_effect=alert_types)
     client.get_historical_data = AsyncMock(side_effect=history)
     with (
         patch(

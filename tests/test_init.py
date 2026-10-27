@@ -148,3 +148,25 @@ async def test_options_change_interval_and_folder(hass, mock_client, mock_imap):
     assert entry.runtime_data.update_interval == timedelta(minutes=120)
     assert entry.runtime_data.imap.folder == "[Gmail]/All Mail"
     mock_client.login.assert_not_awaited()
+
+
+async def test_options_accept_prices(hass, mock_client, mock_imap):
+    entry = _entry(hass, make_token(hours=9))
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {
+            "update_interval": 30,
+            "imap_folder": "INBOX",
+            "price_regular": 8.5,
+            "persons": 4,
+        },
+    )
+    await hass.async_block_till_done()
+
+    assert entry.options["price_regular"] == 8.5
+    assert entry.options["persons"] == 4
+    assert hass.states.get("sensor.water_meter_a_111_cost_this_month_estimate")
