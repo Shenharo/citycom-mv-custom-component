@@ -32,4 +32,15 @@ jobs:
             python3 -m pip install "$CITYCOM_MV_API" pytest-homeassistant-custom-component pytest-github-actions-annotate-failures
 
         - name: "Run"
-          run: python3 -m pytest -v -p no:cacheprovider tests
+          shell: bash
+          run: |
+            set +e
+            python3 -m pytest -v -p no:cacheprovider tests 2>&1 | tee pytest.log
+            status=${PIPESTATUS[0]}
+            if [ "$status" -ne 0 ]; then
+              # Surface the summary where it is readable without signing in.
+              summary=$(grep -E "^(FAILED|ERROR)|Error|error:|assert" pytest.log | tail -c 6000)
+              echo "::error title=pytest failures::${summary//$'
+'/%0A}"
+            fi
+            exit "$status"
