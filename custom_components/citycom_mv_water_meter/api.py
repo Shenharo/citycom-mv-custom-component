@@ -9,9 +9,12 @@ from typing import TYPE_CHECKING, Any
 from citycom_mv_api.citycom_mv_client import CityComMVClient
 from citycom_mv_api.models.exceptions import CitycomError, LoginError, TokenExpiredError
 from citycom_mv_api.models.jwt import JWT
+from citycom_mv_api.models.TimePeriodOptions import TimePeriodOptions
 
 if TYPE_CHECKING:
     import aiohttp
+    from citycom_mv_api.models.Alert import Alert
+    from citycom_mv_api.models.ConsumptionTimeSeries import ConsumptionTimeSeries
     from citycom_mv_api.models.CustomerInformation import CustomerInformation
     from citycom_mv_api.models.login_challenge import LoginChallenge
     from citycom_mv_api.models.Reading import MeterReadings
@@ -112,6 +115,22 @@ class CitycomApiClient:
     async def async_get_last_reading(self, meter_id: int) -> MeterReadings | None:
         """Get the last reading of a meter."""
         return await self._call(self._client.get_last_meter_reading, str(meter_id))
+
+    async def async_get_active_alerts(self, meter_id: int) -> list[Alert]:
+        """Get the active alerts of a meter."""
+        return await self._call(self._client.get_active_alerts, str(meter_id))
+
+    async def async_get_daily_history(
+        self, meter_id: int, from_date: datetime, to_date: datetime
+    ) -> ConsumptionTimeSeries | None:
+        """Get daily consumption of a meter between two dates."""
+        return await self._call(
+            self._client.get_historical_data,
+            str(meter_id),
+            TimePeriodOptions.DAILY,
+            from_date,
+            to_date,
+        )
 
     async def _call(self, func, *args):
         try:

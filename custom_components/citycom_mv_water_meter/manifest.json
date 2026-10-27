@@ -1,19 +1,22 @@
 {
-  "domain": "citycom_mv_water_meter",
-  "name": "Citycom MV water meter",
+  "after_dependencies": [
+    "recorder"
+  ],
   "codeowners": [
     "@Shenharo"
   ],
   "config_flow": true,
   "documentation": "https://github.com/Shenharo/citycom-mv-custom-component",
+  "domain": "citycom_mv_water_meter",
   "integration_type": "hub",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/Shenharo/citycom-mv-custom-component/issues",
   "loggers": [
     "citycom_mv_api"
   ],
+  "name": "Citycom MV water meter",
   "requirements": [
-    "citycom-mv-api==1.1.0"
+    "citycom-mv-api==1.2.0"
   ],
   "version": "0.1.0"
 }
