@@ -6,6 +6,7 @@ https://github.com/Shenharo/citycom-mv-custom-component
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import TYPE_CHECKING
 
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
@@ -14,7 +15,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import CitycomApiClient
 from .config_flow import imap_settings
-from .const import CONF_TOKEN, DOMAIN
+from .const import CONF_TOKEN, CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL, DOMAIN
 from .coordinator import CitycomDataUpdateCoordinator
 
 if TYPE_CHECKING:
@@ -40,7 +41,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: CitycomConfigEntry) -> b
         hass=hass,
         entry=entry,
         client=client,
-        imap=imap_settings(entry.data),
+        # Options (set with the Configure button) override the setup values.
+        imap=imap_settings({**entry.data, **entry.options}),
+        update_interval=timedelta(
+            minutes=entry.options.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
+        ),
     )
     await coordinator.async_config_entry_first_refresh()
     entry.runtime_data = coordinator

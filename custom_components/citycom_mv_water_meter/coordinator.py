@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import TYPE_CHECKING
 
 from homeassistant.exceptions import ConfigEntryAuthFailed
@@ -15,7 +16,7 @@ from .api import (
     CitycomApiClientError,
     CitycomApiClientTokenExpiredError,
 )
-from .const import CONF_TOKEN, DOMAIN, LOGGER, TOKEN_RENEW_MARGIN, UPDATE_INTERVAL
+from .const import CONF_TOKEN, DOMAIN, LOGGER, TOKEN_RENEW_MARGIN
 from .imap import ImapAuthError, ImapError, ImapSettings, async_wait_for_code
 
 if TYPE_CHECKING:
@@ -49,6 +50,7 @@ class CitycomDataUpdateCoordinator(DataUpdateCoordinator[dict[int, "MeterReading
         entry: ConfigEntry,
         client: CitycomApiClient,
         imap: ImapSettings,
+        update_interval: timedelta,
     ) -> None:
         """Initialize."""
         super().__init__(
@@ -56,7 +58,7 @@ class CitycomDataUpdateCoordinator(DataUpdateCoordinator[dict[int, "MeterReading
             logger=LOGGER,
             config_entry=entry,
             name=DOMAIN,
-            update_interval=UPDATE_INTERVAL,
+            update_interval=update_interval,
         )
         self.client = client
         self.imap = imap

@@ -41,9 +41,30 @@
     },
     "entity": {
         "sensor": {
-            "meter_reading": { "name": "Meter reading" },
-            "consumption_current_month": { "name": "Consumption this month" },
-            "last_reading_date": { "name": "Last reading time" }
+            "meter_reading": {
+                "name": "Meter reading"
+            },
+            "consumption_current_month": {
+                "name": "Consumption this month"
+            },
+            "last_reading_date": {
+                "name": "Last reading time"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Citycom MV options",
+                "description": "Polling reads data with the current login and sends no email. A code email is sent only when the login expires, about every 9 hours.",
+                "data": {
+                    "update_interval": "Update interval (minutes)",
+                    "imap_folder": "Mail folder to look for the code email"
+                },
+                "data_description": {
+                    "imap_folder": "If a Gmail filter archives the code emails, use [Gmail]/All Mail."
+                }
+            }
         }
     }
 }
