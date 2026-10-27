@@ -161,6 +161,11 @@ class CitycomDataUpdateCoordinator(DataUpdateCoordinator[dict[int, "MeterReading
                 self.alerts[meter_id] = await self._async_call(
                     self.client.async_get_active_alerts, meter_id
                 )
+                LOGGER.debug(
+                    "Active alerts of meter %s: %s",
+                    meter_id,
+                    [alert.raw for alert in self.alerts[meter_id]],
+                )
             except (UpdateFailed, CitycomApiClientError) as err:
                 LOGGER.debug("Alerts of meter %s unavailable: %s", meter_id, err)
 
