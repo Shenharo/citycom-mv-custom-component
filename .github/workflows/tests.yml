@@ -17,6 +17,7 @@ jobs:
   pytest:
     name: "Pytest"
     runs-on: "ubuntu-latest"
+    timeout-minutes: 20
     steps:
         - name: "Checkout the repository"
           uses: "actions/checkout@v4.1.5"
@@ -29,17 +30,17 @@ jobs:
 
         - name: "Install requirements"
           run: |
-            python3 -m pip install "$CITYCOM_MV_API" pytest-homeassistant-custom-component
+            python3 -m pip install "$CITYCOM_MV_API" pytest-homeassistant-custom-component pytest-timeout
 
         - name: "Run"
           shell: bash
           run: |
             set +e
-            python3 -m pytest -v -p no:cacheprovider tests 2>&1 | tee pytest.log
+            python3 -m pytest -v -p no:cacheprovider --timeout=60 tests 2>&1 | tee pytest.log
             status=${PIPESTATUS[0]}
             if [ "$status" -ne 0 ]; then
               # Surface the failures where they are readable without signing in.
-              summary=$(grep -E "^(FAILED|ERROR|E  )" pytest.log | tail -c 6000 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')
+              summary=$(grep -E "^(FAILED|ERROR|E  )|Timeout|File \"/home/runner/work|^ +(await|return|result|self\.)" pytest.log | tail -c 6000 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')
               echo "::error title=pytest failures::${summary}"
             fi
             exit "$status"
