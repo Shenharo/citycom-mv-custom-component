@@ -49,6 +49,17 @@
             },
             "last_reading_date": {
                 "name": "זמן קריאה אחרונה"
+            },
+            "consumption_yesterday": {
+                "name": "צריכה אתמול"
+            }
+        },
+        "binary_sensor": {
+            "alert": {
+                "name": "התראה"
+            },
+            "not_reporting": {
+                "name": "המונה לא מדווח"
             }
         }
     },

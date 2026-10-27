@@ -37,6 +37,7 @@ class CitycomSensorEntityDescription(SensorEntityDescription):
     """Describes a Citycom meter sensor."""
 
     value_fn: Callable[[MeterReadings], Any]
+    history: bool = False
 
 
 SENSORS: tuple[CitycomSensorEntityDescription, ...] = (
@@ -63,6 +64,15 @@ SENSORS: tuple[CitycomSensorEntityDescription, ...] = (
         translation_key="last_reading_date",
         device_class=SensorDeviceClass.TIMESTAMP,
         value_fn=lambda r: _as_aware(r.last_reading_date),
+    ),
+    CitycomSensorEntityDescription(
+        key="consumption_yesterday",
+        translation_key="consumption_yesterday",
+        device_class=SensorDeviceClass.WATER,
+        native_unit_of_measurement=UnitOfVolume.CUBIC_METERS,
+        suggested_display_precision=3,
+        history=True,
+        value_fn=lambda r: None,
     ),
 )
 
@@ -94,6 +104,8 @@ class CitycomMeterSensor(CitycomMeterEntity, SensorEntity):
     @property
     def native_value(self) -> Any:
         """Return the sensor value."""
+        if self.entity_description.history:
+            return self.coordinator.yesterday.get(self.meter_id)
         reading = self.coordinator.data.get(self.meter_id)
         if reading is None:
             return None

@@ -35,3 +35,8 @@ DEFAULT_IMAP_PORT = 993
 DEFAULT_IMAP_FOLDER = "INBOX"
 # Sender of "קוד אימות CityCom" emails. IMAP FROM search is a substring match.
 DEFAULT_CODE_SENDER = "citycom@gaon.com"
+
+# A meter that has not reported for this long is flagged as not reporting.
+STALE_READING_AFTER = timedelta(hours=24)
+HISTORY_UPDATE_INTERVAL = timedelta(hours=3)
+HISTORY_DAYS = 35

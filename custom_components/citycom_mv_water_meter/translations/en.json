@@ -49,6 +49,17 @@
             },
             "last_reading_date": {
                 "name": "Last reading time"
+            },
+            "consumption_yesterday": {
+                "name": "Consumption yesterday"
+            }
+        },
+        "binary_sensor": {
+            "alert": {
+                "name": "Alert"
+            },
+            "not_reporting": {
+                "name": "Not reporting"
             }
         }
     },
