@@ -5,6 +5,7 @@ from datetime import timedelta
 from citycom_mv_api.models.exceptions import CitycomError
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.config_entries import ConfigEntryState
+from homeassistant.helpers import device_registry as dr
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
     async_fire_time_changed,
@@ -45,6 +46,11 @@ async def test_setup_with_stored_token_creates_sensors(hass, mock_client, mock_i
     month = hass.states.get("sensor.water_meter_a_111_consumption_this_month")
     assert month.state == "1.5"
     assert hass.states.get("sensor.water_meter_a_111_last_reading_time") is not None
+
+    # The disabled (replaced) meter gets no sensors and is not polled.
+    assert hass.states.get("sensor.water_meter_old_333_meter_reading") is None
+    polled = {c.args[0] for c in mock_client.get_last_meter_reading.await_args_list}
+    assert polled == {"111", "222"}
 
     assert await hass.config_entries.async_unload(entry.entry_id)
     assert entry.state is ConfigEntryState.NOT_LOADED
@@ -101,3 +107,17 @@ async def test_connection_failure_retries(hass, mock_client, mock_imap):
     await hass.async_block_till_done()
 
     assert entry.state is ConfigEntryState.SETUP_RETRY
+
+
+async def test_stale_meter_device_is_removed(hass, mock_client, mock_imap):
+    entry = _entry(hass, make_token(hours=9))
+    device_registry = dr.async_get(hass)
+    old = device_registry.async_get_or_create(
+        config_entry_id=entry.entry_id, identifiers={(DOMAIN, "333")}
+    )
+
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert device_registry.async_get(old.id) is None
+    assert device_registry.async_get_device(identifiers={(DOMAIN, "111")})
