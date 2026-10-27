@@ -109,8 +109,14 @@ class CitycomDataUpdateCoordinator(DataUpdateCoordinator[dict[int, "MeterReading
 
         for property_ in customer.properties or []:
             for meter in property_.meters or []:
-                if meter.meter_id is not None:
-                    self.meters[meter.meter_id] = meter
+                if meter.meter_id is None:
+                    continue
+                # A replaced meter stays on the account, disabled, and the
+                # summary API answers for it with the new meter's data.
+                if meter.is_enabled is False:
+                    LOGGER.debug("Skipping disabled meter %s", meter.meter_id)
+                    continue
+                self.meters[meter.meter_id] = meter
         LOGGER.debug("Discovered meters: %s", list(self.meters))
 
     async def _async_update_data(self) -> dict[int, MeterReadings]:

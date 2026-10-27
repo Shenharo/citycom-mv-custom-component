@@ -43,6 +43,8 @@ CUSTOMER = CustomerInformation.from_dict(
                 "meters": [
                     {"meterId": 111, "number": "A-111", "modelTypeName": "Arad"},
                     {"meterId": 222, "number": "B-222"},
+                    # Replaced meter: still listed, disabled.
+                    {"meterId": 333, "number": "OLD-333", "isEnabled": False},
                 ],
             }
         ],
