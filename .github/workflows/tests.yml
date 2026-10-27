@@ -36,12 +36,12 @@ jobs:
           shell: bash
           run: |
             set +e
-            timeout -s INT 480 python3 -m pytest -v -p no:cacheprovider --timeout=60 --timeout-method=thread tests > pytest.log 2>&1
+            timeout -s INT 480 python3 -m pytest -v -p no:cacheprovider --timeout=30 --timeout-method=thread tests > pytest.log 2>&1
             status=$?
             cat pytest.log
             if [ "$status" -ne 0 ]; then
               # Surface the end of the log where it is readable without signing in.
-              summary=$(tail -c 7000 pytest.log | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')
+              summary=$(grep -v 'Invalid username or password' pytest.log | grep -vE '^(DEBUG|INFO)' | tail -c 7000 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')
               echo "::error title=pytest (exit $status)::${summary}"
             fi
             exit "$status"
