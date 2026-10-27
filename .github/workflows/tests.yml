@@ -36,11 +36,12 @@ jobs:
           shell: bash
           run: |
             set +e
-            python3 -m pytest -v -p no:cacheprovider --timeout=60 tests 2>&1 | tee pytest.log
-            status=${PIPESTATUS[0]}
+            timeout -s INT 480 python3 -m pytest -v -p no:cacheprovider --timeout=60 --timeout-method=thread tests > pytest.log 2>&1
+            status=$?
+            cat pytest.log
             if [ "$status" -ne 0 ]; then
-              # Surface the failures where they are readable without signing in.
-              summary=$(grep -E "^(FAILED|ERROR|E  )|Timeout|File \"/home/runner/work|^ +(await|return|result|self\.)" pytest.log | tail -c 6000 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')
-              echo "::error title=pytest failures::${summary}"
+              # Surface the end of the log where it is readable without signing in.
+              summary=$(tail -c 7000 pytest.log | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')
+              echo "::error title=pytest (exit $status)::${summary}"
             fi
             exit "$status"
