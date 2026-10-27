@@ -70,7 +70,7 @@ def mock_imap():
         ) as check,
         patch(
             "custom_components.citycom_mv_water_meter.imap.find_code",
-            return_value="309968",
+            return_value="482915",
         ) as find,
     ):
         yield MagicMock(check_login=check, find_code=find)

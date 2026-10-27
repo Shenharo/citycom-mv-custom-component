@@ -16,7 +16,7 @@ from html import unescape
 
 from .const import LOGGER
 
-# Citycom's email reads "קוד האימות שלך הוא: 309968". Fall back to a code
+# Citycom's email reads "קוד האימות שלך הוא: 482915". Fall back to a code
 # after a word like "code"/"קוד", then to any standalone 4-8 digit number.
 _CITYCOM_CODE = re.compile(r"(?:הוא|is)\s*:?\s*(\d{4,8})(?!\d)", re.IGNORECASE)
 _CODE_NEAR_KEYWORD = re.compile(

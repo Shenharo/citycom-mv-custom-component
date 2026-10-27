@@ -64,7 +64,7 @@ async def test_expiring_token_logs_in_with_email_code(
     await hass.async_block_till_done()
 
     mock_client.login.assert_awaited_once_with(channel="email")
-    mock_client.verify_2fa_code.assert_awaited_once_with("309968")
+    mock_client.verify_2fa_code.assert_awaited_once_with("482915")
     stored = entry.data[CONF_TOKEN]
     assert stored["expires"] == mock_client._token.expires  # noqa: SLF001
     assert entry.state is ConfigEntryState.LOADED

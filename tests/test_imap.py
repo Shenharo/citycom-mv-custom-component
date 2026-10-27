@@ -7,11 +7,11 @@ from email.mime.text import MIMEText
 
 from custom_components.citycom_mv_water_meter.imap import extract_code
 
-# Body of a real "קוד אימות CityCom" email from citycom@gaon.com.
+# Body of a "קוד אימות CityCom" email from citycom@gaon.com (made-up code).
 HTML = (
     '<div style="width:700px;padding:30px 20px">'
     '<h1 style="font-size:48px">קוד אימות CityCom</h1>'
-    '<p style="font-size:24px">קוד האימות שלך הוא: <b>309968</b><br>'
+    '<p style="font-size:24px">קוד האימות שלך הוא: <b>482915</b><br>'
     "הקוד תקף ל - 10 דקות. אם לא ביקשת קוד זה, התעלם מהודעה זו.</p>"
     "<p>נוצר על ידי City Com</p></div>"
 )
@@ -26,14 +26,14 @@ def test_html_email():
     msg["Subject"] = Header("קוד אימות CityCom", "utf-8").encode()
     msg["From"] = "CityCom <citycom@gaon.com>"
     msg.attach(MIMEText(HTML, "html", "utf-8"))
-    assert extract_code(_parse(msg)) == "309968"
+    assert extract_code(_parse(msg)) == "482915"
 
 
 def test_plain_email():
     msg = MIMEText(
-        "קוד האימות שלך הוא: 309968\nהקוד תקף ל - 10 דקות.", "plain", "utf-8"
+        "קוד האימות שלך הוא: 482915\nהקוד תקף ל - 10 דקות.", "plain", "utf-8"
     )
-    assert extract_code(_parse(msg)) == "309968"
+    assert extract_code(_parse(msg)) == "482915"
 
 
 def test_english_wording():

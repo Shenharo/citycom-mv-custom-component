@@ -47,7 +47,7 @@ async def test_email_code_login_creates_entry(hass, mock_client, mock_imap):
     assert result["data"][CONF_PASSWORD] == "secret"
     assert result["data"][CONF_TOKEN]["access_token"] == "access"
     mock_client.login.assert_awaited_once_with(channel="email")
-    mock_client.verify_2fa_code.assert_awaited_once_with("309968")
+    mock_client.verify_2fa_code.assert_awaited_once_with("482915")
 
 
 async def test_manual_code_when_email_missing(hass, mock_client, mock_imap):
