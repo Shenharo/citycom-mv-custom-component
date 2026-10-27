@@ -7,9 +7,16 @@ from collections.abc import Mapping
 from typing import Any
 
 import voluptuous as vol
-from homeassistant.config_entries import SOURCE_REAUTH, ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    SOURCE_REAUTH,
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlowWithReload,
+)
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.helpers import selector
+from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import (
@@ -20,6 +27,10 @@ from .api import (
     CitycomApiClientError,
 )
 from .const import (
+    CONF_UPDATE_INTERVAL,
+    DEFAULT_UPDATE_INTERVAL,
+    MAX_UPDATE_INTERVAL,
+    MIN_UPDATE_INTERVAL,
     CONF_CODE_SENDER,
     CONF_IMAP_FOLDER,
     CONF_IMAP_HOST,
@@ -101,6 +112,12 @@ class CitycomFlowHandler(ConfigFlow, domain=DOMAIN):
     """
 
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> CitycomOptionsFlow:  # noqa: ARG004
+        """Return the options flow."""
+        return CitycomOptionsFlow()
 
     def __init__(self) -> None:
         """Initialize."""
@@ -251,3 +268,42 @@ class CitycomFlowHandler(ConfigFlow, domain=DOMAIN):
             LOGGER.error(err)
             return {"base": "imap_connection"}
         return {}
+
+
+class CitycomOptionsFlow(OptionsFlowWithReload):
+    """Change the polling interval and the mail folder."""
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Show the options form."""
+        if user_input is not None:
+            user_input[CONF_UPDATE_INTERVAL] = int(user_input[CONF_UPDATE_INTERVAL])
+            return self.async_create_entry(data=user_input)
+
+        current = {**self.config_entry.data, **self.config_entry.options}
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_UPDATE_INTERVAL,
+                        default=current.get(
+                            CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL
+                        ),
+                    ): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=MIN_UPDATE_INTERVAL,
+                            max=MAX_UPDATE_INTERVAL,
+                            step=1,
+                            unit_of_measurement="min",
+                            mode=selector.NumberSelectorMode.BOX,
+                        )
+                    ),
+                    vol.Required(
+                        CONF_IMAP_FOLDER,
+                        default=current.get(CONF_IMAP_FOLDER, DEFAULT_IMAP_FOLDER),
+                    ): TEXT,
+                }
+            ),
+        )

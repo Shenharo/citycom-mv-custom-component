@@ -12,7 +12,7 @@ For each meter:
 | Consumption this month | Water used since the start of the month, in m³. |
 | Last reading time | When the meter last reported. |
 
-Data is polled every 30 minutes.
+Data is polled every 30 minutes by default. Polling only reads data and sends no email; change the interval with the integration's **Configure** button.
 
 ## How login works
 
@@ -54,6 +54,10 @@ The codes come from `citycom@gaon.com`. If you use a filter that moves them out 
 2. Enter your Citycom username and password, the email address the codes are sent to, and its IMAP app password.
 3. The integration logs in and waits up to 2 minutes for the code email. If it does not arrive, you can type the code yourself.
 
+### Avoiding notifications for code emails
+
+A code email arrives about every 9 hours. To keep them out of your inbox, create a Gmail filter for `from:citycom@gaon.com` with **Skip the Inbox** and **Mark as read**, then set the mail folder to `[Gmail]/All Mail` with the **Configure** button.
+
 If Citycom or the mail server later rejects a password, Home Assistant shows a re-authentication notice where you can enter the new ones.
 
-Requires Home Assistant 2025.6 or newer.
+Requires Home Assistant 2025.8 or newer.

@@ -126,3 +126,25 @@ async def test_stale_meter_device_is_removed(hass, mock_client, mock_imap):
         for identifier in device.identifiers
     }
     assert identifiers == {(DOMAIN, "111"), (DOMAIN, "222")}
+
+
+async def test_options_change_interval_and_folder(hass, mock_client, mock_imap):
+    entry = _entry(hass, make_token(hours=9))
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert entry.runtime_data.update_interval == timedelta(minutes=30)
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["step_id"] == "init"
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {"update_interval": 120, "imap_folder": "[Gmail]/All Mail"},
+    )
+    await hass.async_block_till_done()
+
+    assert entry.options == {"update_interval": 120, "imap_folder": "[Gmail]/All Mail"}
+    # The entry reloads with the new options, reusing the stored token.
+    assert entry.state is ConfigEntryState.LOADED
+    assert entry.runtime_data.update_interval == timedelta(minutes=120)
+    assert entry.runtime_data.imap.folder == "[Gmail]/All Mail"
+    mock_client.login.assert_not_awaited()

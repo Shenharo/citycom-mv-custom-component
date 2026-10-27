@@ -10,8 +10,12 @@ DOMAIN = "citycom_mv_water_meter"
 MANUFACTURER = "Citycom MV"
 ATTRIBUTION = "Data provided by Citycom MV"
 
-# Meters report a few times a day; there is no point polling more often.
-UPDATE_INTERVAL = timedelta(minutes=30)
+# Polling only reads data with the current token; it sends no email.
+# Meters report a few times a day, so polling often gains little.
+CONF_UPDATE_INTERVAL = "update_interval"
+DEFAULT_UPDATE_INTERVAL = 30  # minutes
+MIN_UPDATE_INTERVAL = 5
+MAX_UPDATE_INTERVAL = 24 * 60
 
 # Tokens last 10 hours and cannot be refreshed. Log in again (with a code
 # sent by email) when less than this is left, so a poll never hits an

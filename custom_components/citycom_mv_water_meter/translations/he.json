@@ -41,9 +41,30 @@
     },
     "entity": {
         "sensor": {
-            "meter_reading": { "name": "קריאת מונה" },
-            "consumption_current_month": { "name": "צריכה החודש" },
-            "last_reading_date": { "name": "זמן קריאה אחרונה" }
+            "meter_reading": {
+                "name": "קריאת מונה"
+            },
+            "consumption_current_month": {
+                "name": "צריכה החודש"
+            },
+            "last_reading_date": {
+                "name": "זמן קריאה אחרונה"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "הגדרות Citycom MV",
+                "description": "עדכון הנתונים משתמש בהתחברות הקיימת ולא שולח מייל. מייל עם קוד נשלח רק כשההתחברות פגה, בערך כל 9 שעות.",
+                "data": {
+                    "update_interval": "תדירות עדכון (דקות)",
+                    "imap_folder": "תיקיית הדואר שבה מחפשים את מייל הקוד"
+                },
+                "data_description": {
+                    "imap_folder": "אם מסנן ב-Gmail מעביר את מיילי הקוד לארכיון, יש להזין [Gmail]/All Mail."
+                }
+            }
         }
     }
 }
