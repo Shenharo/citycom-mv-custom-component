@@ -6,6 +6,8 @@ from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from citycom_mv_api.models.Alert import Alert
+from citycom_mv_api.models.ConsumptionTimeSeries import ConsumptionTimeSeries
 from citycom_mv_api.models.CustomerInformation import CustomerInformation
 from citycom_mv_api.models.jwt import JWT
 from citycom_mv_api.models.login_challenge import LoginChallenge
@@ -119,8 +121,30 @@ def mock_client():
     client.load_jwt_token = AsyncMock(side_effect=load_jwt_token)
     client.get_customer = AsyncMock(return_value=CUSTOMER)
     client.get_last_meter_reading = AsyncMock(side_effect=reading)
-    with patch(
-        "custom_components.citycom_mv_water_meter.api.CityComMVClient",
-        return_value=client,
+
+    async def alerts(meter_id):
+        if meter_id == "111":
+            return [Alert(meter_id=111, alert_type="Leak")]
+        return []
+
+    async def history(meter_id, period, from_date, to_date):
+        series = ConsumptionTimeSeries()
+        today = datetime.now().date()
+        series.add(today - timedelta(days=2), 1.0)
+        series.add(today - timedelta(days=1), 2.0)
+        series.add(today, 0.5)
+        return series
+
+    client.get_active_alerts = AsyncMock(side_effect=alerts)
+    client.get_historical_data = AsyncMock(side_effect=history)
+    with (
+        patch(
+            "custom_components.citycom_mv_water_meter.api.CityComMVClient",
+            return_value=client,
+        ),
+        patch(
+            "custom_components.citycom_mv_water_meter.coordinator.import_history"
+        ) as import_history,
     ):
+        client.import_history = import_history
         yield client
