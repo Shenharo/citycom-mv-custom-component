@@ -1,0 +1,49 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "חשבון Citycom MV",
+                "description": "Citycom דורשים קוד אימות בכל התחברות, וההתחברות תקפה ל-10 שעות. האינטגרציה מבקשת את הקוד במייל וקוראת אותו מתיבת הדואר שלך ב-IMAP, כך שהיא יכולה להתחבר מחדש לבד. ב-Gmail יש להפעיל אימות דו-שלבי וליצור סיסמת אפליקציה ב-https://myaccount.google.com/apppasswords.",
+                "data": {
+                    "username": "שם משתמש ב-Citycom",
+                    "password": "סיסמה ב-Citycom",
+                    "imap_username": "כתובת המייל שאליה נשלחים הקודים",
+                    "imap_password": "סיסמת אפליקציה למייל (IMAP)",
+                    "imap_host": "שרת IMAP",
+                    "imap_port": "פורט IMAP",
+                    "imap_folder": "תיקיית דואר",
+                    "code_sender": "שולח מייל הקוד"
+                }
+            },
+            "code": {
+                "title": "הזן את קוד האימות",
+                "description": "לא הגיע מייל עם קוד מ-{sender} אל {mailbox}. הזן בעצמך את הקוד מהמייל (או מה-SMS). כדאי לבדוק שתיקיית הדואר נכונה, אחרת גם ההתחברויות הבאות ייכשלו.",
+                "data": {
+                    "code": "קוד אימות"
+                }
+            }
+        },
+        "progress": {
+            "wait_for_email": "מתחבר ל-Citycom וממתין למייל עם קוד האימות. זה יכול לקחת עד 2 דקות."
+        },
+        "error": {
+            "auth": "Citycom דחו את שם המשתמש או הסיסמה.",
+            "connection": "לא ניתן להתחבר ל-Citycom.",
+            "invalid_code": "Citycom דחו את קוד האימות.",
+            "imap_auth": "שרת הדואר דחה את כתובת המייל או את סיסמת האפליקציה.",
+            "imap_connection": "לא ניתן להתחבר לשרת הדואר או לפתוח את תיקיית הדואר.",
+            "unknown": "אירעה שגיאה לא ידועה."
+        },
+        "abort": {
+            "already_configured": "החשבון הזה כבר מוגדר.",
+            "reauth_successful": "האימות מחדש הצליח."
+        }
+    },
+    "entity": {
+        "sensor": {
+            "meter_reading": { "name": "קריאת מונה" },
+            "consumption_current_month": { "name": "צריכה החודש" },
+            "last_reading_date": { "name": "זמן קריאה אחרונה" }
+        }
+    }
+}
