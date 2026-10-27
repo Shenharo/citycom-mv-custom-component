@@ -52,6 +52,9 @@
             },
             "consumption_yesterday": {
                 "name": "צריכה אתמול"
+            },
+            "consumption_last_7_days": {
+                "name": "צריכה ב-7 הימים האחרונים"
             }
         },
         "binary_sensor": {
