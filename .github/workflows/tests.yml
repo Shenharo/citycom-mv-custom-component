@@ -1,0 +1,47 @@
+name: "Tests"
+
+on:
+  push:
+    branches:
+      - "main"
+      - "feature/**"
+  pull_request:
+    branches:
+      - "main"
+
+env:
+  # Same version as manifest.json; installed from the tag so CI does not wait on PyPI.
+  CITYCOM_MV_API: "citycom-mv-api @ git+https://github.com/Shenharo/py-citycom-mv-api@v1.1.0"
+
+jobs:
+  pytest:
+    name: "Pytest"
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 20
+    steps:
+        - name: "Checkout the repository"
+          uses: "actions/checkout@v4.1.5"
+
+        - name: "Set up Python"
+          uses: actions/setup-python@v5.0.0
+          with:
+            python-version: "3.14"
+            cache: "pip"
+
+        - name: "Install requirements"
+          run: |
+            python3 -m pip install "$CITYCOM_MV_API" pytest-homeassistant-custom-component pytest-timeout
+
+        - name: "Run"
+          shell: bash
+          run: |
+            set +e
+            timeout -s INT 480 python3 -m pytest -v -p no:cacheprovider --timeout=30 --timeout-method=thread tests > pytest.log 2>&1
+            status=$?
+            cat pytest.log
+            if [ "$status" -ne 0 ]; then
+              # Surface the end of the log where it is readable without signing in.
+              summary=$(grep -v 'Invalid username or password' pytest.log | grep -vE '^(DEBUG|INFO)' | tail -c 7000 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')
+              echo "::error title=pytest (exit $status)::${summary}"
+            fi
+            exit "$status"

@@ -1,47 +1,59 @@
-# Notice
+# Citycom MV Water Meter Home Assistant Integration
 
-The component and platforms in this repository are not meant to be used by a
-user, but as a "blueprint" that custom component developers can build
-upon, to make more awesome stuff.
+This custom component integrates your Citycom MV water meters with Home Assistant. It discovers every meter on your account and creates a device with sensors for each one.
 
-HAVE FUN! 😎
+## Sensors
 
-## Why?
+For each meter:
 
-This is simple, by having custom_components look (README + structure) the same
-it is easier for developers to help each other and for users to start using them.
+| Sensor | Description |
+| --- | --- |
+| Meter reading | Total meter reading in m³. Can be added to the Energy dashboard as a water source. |
+| Consumption this month | Water used since the start of the month, in m³. |
+| Last reading time | When the meter last reported. |
 
-If you are a developer and you want to add things to this "blueprint" that you think more
-developers will have use for, please open a PR to add it :)
+Data is polled every 30 minutes.
 
-## What?
+## How login works
 
-This repository contains multiple files, here is a overview:
+Citycom requires a verification code (2FA) on every login, and a login lasts 10 hours with no way to renew it. To keep working on its own, the integration asks Citycom to send the code by **email** and reads it from your mailbox over **IMAP**. It logs in again automatically about 45 minutes before each token expires.
 
-File | Purpose | Documentation
--- | -- | --
-`.devcontainer.json` | Used for development/testing with Visual Studio Code. | [Documentation](https://code.visualstudio.com/docs/remote/containers)
-`.github/ISSUE_TEMPLATE/*.yml` | Templates for the issue tracker | [Documentation](https://help.github.com/en/github/building-a-strong-community/configuring-issue-templates-for-your-repository)
-`.vscode/tasks.json` | Tasks for the devcontainer. | [Documentation](https://code.visualstudio.com/docs/editor/tasks)
-`custom_components/integration_blueprint/*` | Integration files, this is where everything happens. | [Documentation](https://developers.home-assistant.io/docs/creating_component_index)
-`CONTRIBUTING.md` | Guidelines on how to contribute. | [Documentation](https://help.github.com/en/github/building-a-strong-community/setting-guidelines-for-repository-contributors)
-`LICENSE` | The license file for the project. | [Documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository)
-`README.md` | The file you are reading now, should contain info about the integration, installation and configuration instructions. | [Documentation](https://help.github.com/en/github/writing-on-github/basic-writing-and-formatting-syntax)
-`requirements.txt` | Python packages used for development/lint/testing this integration. | [Documentation](https://pip.pypa.io/en/stable/user_guide/#requirements-files)
+You need:
 
-## How?
+- Your Citycom username and password (the ones you use on https://citycom-mv.com/login).
+- IMAP access to the mailbox the codes are sent to. For Gmail:
+  1. Turn on 2-Step Verification for the Google account.
+  2. Create an App Password at https://myaccount.google.com/apppasswords and use it as the IMAP password. Your regular Gmail password will not work.
 
-1. Create a new repository in GitHub, using this repository as a template by clicking the "Use this template" button in the GitHub UI.
-1. Open your new repository in Visual Studio Code devcontainer (Preferably with the "`Dev Containers: Clone Repository in Named Container Volume...`" option).
-1. Rename all instances of the `integration_blueprint` to `custom_components/<your_integration_domain>` (e.g. `custom_components/awesome_integration`).
-1. Rename all instances of the `Integration Blueprint` to `<Your Integration Name>` (e.g. `Awesome Integration`).
-1. Run the `scripts/develop` to start HA and test out your new integration.
+The codes come from `citycom@gaon.com`. If you use a filter that moves them out of the inbox, set the mail folder accordingly (for example `[Gmail]/All Mail`).
 
-## Next steps
+## Installation
 
-These are some next steps you may want to look into:
-- Add tests to your integration, [`pytest-homeassistant-custom-component`](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component) can help you get started.
-- Add brand images (logo/icon) to https://github.com/home-assistant/brands.
-- Create your first release.
-- Share your integration on the [Home Assistant Forum](https://community.home-assistant.io/).
-- Submit your integration to the [HACS](https://hacs.xyz/docs/publish/start).
+### HACS (Recommended)
+
+1. Go to **HACS > Integrations** in your Home Assistant UI.
+2. Click the three dots (menu) in the top right and select **Custom repositories**.
+3. Add `https://github.com/Shenharo/citycom-mv-custom-component` and select "Integration" as the category.
+4. Find "Citycom MV water meter" in the HACS integrations list and click "Install".
+5. Restart Home Assistant.
+
+### Manual
+
+1. Download or clone this repository.
+2. Copy the `custom_components/citycom_mv_water_meter` folder to your Home Assistant `custom_components` directory:
+
+   ```
+   <config>/custom_components/citycom_mv_water_meter/
+   ```
+
+3. Restart Home Assistant.
+
+## Configuration
+
+1. Go to **Settings > Devices & Services > Add Integration** and search for "Citycom MV water meter".
+2. Enter your Citycom username and password, the email address the codes are sent to, and its IMAP app password.
+3. The integration logs in and waits up to 2 minutes for the code email. If it does not arrive, you can type the code yourself.
+
+If Citycom or the mail server later rejects a password, Home Assistant shows a re-authentication notice where you can enter the new ones.
+
+Requires Home Assistant 2025.6 or newer.

@@ -1,4 +1,4 @@
-# Integration Blueprint
+# Citycom MV water meter
 
 [![GitHub Release][releases-shield]][releases]
 [![GitHub Activity][commits-shield]][commits]
@@ -10,7 +10,7 @@
 [![Discord][discord-shield]][discord]
 [![Community Forum][forum-shield]][forum]
 
-_Integration to integrate with [integration_blueprint][integration_blueprint]._
+_Integration to integrate with [Citycom MV][citycom-mv]._
 
 **This integration will set up the following platforms.**
 
@@ -24,11 +24,11 @@ Platform | Description
 
 1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`).
 1. If you do not have a `custom_components` directory (folder) there, you need to create it.
-1. In the `custom_components` directory (folder) create a new folder called `integration_blueprint`.
-1. Download _all_ the files from the `custom_components/integration_blueprint/` directory (folder) in this repository.
+1. In the `custom_components` directory (folder) create a new folder called `citycom-mv`.
+1. Download _all_ the files from the `custom_components/citycom-mv/` directory (folder) in this repository.
 1. Place the files you downloaded in the new directory (folder) you created.
 1. Restart Home Assistant
-1. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "Integration blueprint"
+1. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "Citycom MV"
 
 ## Configuration is done in the UI
 
@@ -40,11 +40,11 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
 
 ***
 
-[integration_blueprint]: https://github.com/ludeeus/integration_blueprint
+[citycom-mv]: https://github.com/ludeeus/citycom-mv
 [buymecoffee]: https://www.buymeacoffee.com/ludeeus
 [buymecoffeebadge]: https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?style=for-the-badge
-[commits-shield]: https://img.shields.io/github/commit-activity/y/ludeeus/integration_blueprint.svg?style=for-the-badge
-[commits]: https://github.com/ludeeus/integration_blueprint/commits/main
+[commits-shield]: https://img.shields.io/github/commit-activity/y/ludeeus/citycom-mv.svg?style=for-the-badge
+[commits]: https://github.com/ludeeus/citycom-mv/commits/main
 [discord]: https://discord.gg/Qa5fW2R
 [discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge
 [exampleimg]: example.png
