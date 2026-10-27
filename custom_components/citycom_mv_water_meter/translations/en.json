@@ -55,6 +55,9 @@
             },
             "consumption_last_7_days": {
                 "name": "Consumption last 7 days"
+            },
+            "cost_this_month": {
+                "name": "Cost this month (estimate)"
             }
         },
         "binary_sensor": {
@@ -70,10 +73,16 @@
         "step": {
             "init": {
                 "title": "Citycom MV options",
-                "description": "Polling reads data with the current login and sends no email. A code email is sent only when the login expires, about every 9 hours.",
+                "description": "Polling reads data with the current login and sends no email. A code email is sent only when the login expires, about every 9 hours. Set the regular price to add a monthly cost estimate sensor. Water up to the allowance times the number of people is charged at the regular price, the rest at the over-usage price.",
                 "data": {
                     "update_interval": "Update interval (minutes)",
-                    "imap_folder": "Mail folder to look for the code email"
+                    "imap_folder": "Mail folder to look for the code email",
+                    "price_regular": "Regular price per m³",
+                    "price_over": "Over-usage price per m³",
+                    "price_drain": "Drain (sewage) price per m³",
+                    "price_fixed": "Fixed monthly fee",
+                    "allowance_per_person": "Monthly allowance per person (m³)",
+                    "persons": "Number of people (leave empty to use your Citycom account)"
                 },
                 "data_description": {
                     "imap_folder": "If a Gmail filter archives the code emails, use [Gmail]/All Mail."

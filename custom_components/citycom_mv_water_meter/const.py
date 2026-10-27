@@ -40,3 +40,11 @@ DEFAULT_CODE_SENDER = "citycom@gaon.com"
 STALE_READING_AFTER = timedelta(hours=24)
 HISTORY_UPDATE_INTERVAL = timedelta(hours=3)
 HISTORY_DAYS = 35
+
+# Optional price settings; the cost sensor exists only when a regular price is set.
+CONF_PRICE_REGULAR = "price_regular"
+CONF_PRICE_OVER = "price_over"
+CONF_PRICE_DRAIN = "price_drain"
+CONF_PRICE_FIXED = "price_fixed"
+CONF_ALLOWANCE = "allowance_per_person"
+CONF_PERSONS = "persons"

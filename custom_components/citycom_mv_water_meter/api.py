@@ -14,6 +14,7 @@ from citycom_mv_api.models.TimePeriodOptions import TimePeriodOptions
 if TYPE_CHECKING:
     import aiohttp
     from citycom_mv_api.models.Alert import Alert
+    from citycom_mv_api.models.AlertType import AlertType
     from citycom_mv_api.models.ConsumptionTimeSeries import ConsumptionTimeSeries
     from citycom_mv_api.models.CustomerInformation import CustomerInformation
     from citycom_mv_api.models.login_challenge import LoginChallenge
@@ -119,6 +120,10 @@ class CitycomApiClient:
     async def async_get_active_alerts(self, meter_id: int) -> list[Alert]:
         """Get the active alerts of a meter."""
         return await self._call(self._client.get_active_alerts, str(meter_id))
+
+    async def async_get_alert_types(self) -> list[AlertType]:
+        """Get the alert types lookup, to name the alerts."""
+        return await self._call(self._client.get_alert_types)
 
     async def async_get_daily_history(
         self, meter_id: int, from_date: datetime, to_date: datetime

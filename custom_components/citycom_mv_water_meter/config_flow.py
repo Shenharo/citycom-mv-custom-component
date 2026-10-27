@@ -27,6 +27,12 @@ from .api import (
     CitycomApiClientError,
 )
 from .const import (
+    CONF_ALLOWANCE,
+    CONF_PERSONS,
+    CONF_PRICE_DRAIN,
+    CONF_PRICE_FIXED,
+    CONF_PRICE_OVER,
+    CONF_PRICE_REGULAR,
     CONF_UPDATE_INTERVAL,
     DEFAULT_UPDATE_INTERVAL,
     MAX_UPDATE_INTERVAL,
@@ -55,6 +61,14 @@ from .imap import (
 )
 
 TEXT = selector.TextSelector()
+
+
+def _number(step: float | str = "any") -> selector.NumberSelector:
+    return selector.NumberSelector(
+        selector.NumberSelectorConfig(
+            min=0, step=step, mode=selector.NumberSelectorMode.BOX
+        )
+    )
 PASSWORD = selector.TextSelector(
     selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)
 )
@@ -279,6 +293,8 @@ class CitycomOptionsFlow(OptionsFlowWithReload):
         """Show the options form."""
         if user_input is not None:
             user_input[CONF_UPDATE_INTERVAL] = int(user_input[CONF_UPDATE_INTERVAL])
+            if CONF_PERSONS in user_input:
+                user_input[CONF_PERSONS] = int(user_input[CONF_PERSONS])
             return self.async_create_entry(data=user_input)
 
         current = {**self.config_entry.data, **self.config_entry.options}
@@ -304,6 +320,30 @@ class CitycomOptionsFlow(OptionsFlowWithReload):
                         CONF_IMAP_FOLDER,
                         default=current.get(CONF_IMAP_FOLDER, DEFAULT_IMAP_FOLDER),
                     ): TEXT,
+                    vol.Optional(
+                        CONF_PRICE_REGULAR,
+                        description={"suggested_value": current.get(CONF_PRICE_REGULAR)},
+                    ): _number(),
+                    vol.Optional(
+                        CONF_PRICE_OVER,
+                        description={"suggested_value": current.get(CONF_PRICE_OVER)},
+                    ): _number(),
+                    vol.Optional(
+                        CONF_PRICE_DRAIN,
+                        description={"suggested_value": current.get(CONF_PRICE_DRAIN)},
+                    ): _number(),
+                    vol.Optional(
+                        CONF_PRICE_FIXED,
+                        description={"suggested_value": current.get(CONF_PRICE_FIXED)},
+                    ): _number(),
+                    vol.Optional(
+                        CONF_ALLOWANCE,
+                        description={"suggested_value": current.get(CONF_ALLOWANCE)},
+                    ): _number(),
+                    vol.Optional(
+                        CONF_PERSONS,
+                        description={"suggested_value": current.get(CONF_PERSONS)},
+                    ): _number(step=1),
                 }
             ),
         )

@@ -14,13 +14,15 @@ from custom_components.citycom_mv_water_meter.statistics import (
 from .conftest import USER_INPUT, make_token
 
 
-async def _setup(hass):
+async def _setup(hass, options=None):
     token = make_token(hours=9)
     data = {
         **USER_INPUT,
         CONF_TOKEN: {"access_token": token.access_token, "expires": token.expires},
     }
-    entry = MockConfigEntry(domain=DOMAIN, unique_id="user@citycom-mv.com", data=data)
+    entry = MockConfigEntry(
+        domain=DOMAIN, unique_id="user@citycom-mv.com", data=data, options=options or {}
+    )
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
@@ -33,7 +35,7 @@ async def test_alert_and_not_reporting_binary_sensors(hass, mock_client, mock_im
 
     alert = hass.states.get("binary_sensor.water_meter_a_111_alert")
     assert alert.state == "on"
-    assert alert.attributes["alerts"] == ["Leak"]
+    assert alert.attributes["alerts"] == [{"type": "Leak", "date": "2026-10-27T08:30:00"}]
     assert hass.states.get("binary_sensor.water_meter_b_222_alert").state == "off"
     # The mocked reading is from 2026-10-27, far in the past.
     assert hass.states.get("binary_sensor.water_meter_a_111_not_reporting") is not None

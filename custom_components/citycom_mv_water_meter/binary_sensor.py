@@ -43,7 +43,15 @@ def _alert_attrs(
 ) -> dict[str, Any]:
     return {
         "alerts": [
-            alert.alert_type or alert.description or alert.alert_type_id
+            {
+                "type": coordinator.alert_types.get(alert.alert_type_id)
+                or alert.alert_type
+                or alert.description
+                or alert.alert_type_id,
+                "date": (alert.date or alert.start_date).isoformat()
+                if alert.date or alert.start_date
+                else None,
+            }
             for alert in coordinator.alerts.get(meter_id, [])
         ]
     }
