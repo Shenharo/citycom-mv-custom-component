@@ -17,6 +17,7 @@ from .api import (
     CitycomApiClientTokenExpiredError,
 )
 from .const import (
+    CONF_STAT_BASE,
     CONF_TOKEN,
     DOMAIN,
     HISTORY_DAYS,
@@ -24,7 +25,7 @@ from .const import (
     LOGGER,
     TOKEN_RENEW_MARGIN,
 )
-from .statistics import daily_totals, import_history
+from .statistics import daily_totals, import_history, stat_base
 from .imap import ImapAuthError, ImapError, ImapSettings, async_wait_for_code
 
 if TYPE_CHECKING:
@@ -208,9 +209,12 @@ class CitycomDataUpdateCoordinator(DataUpdateCoordinator[dict[int, "MeterReading
             if series is None or reading is None:
                 continue
             name = f"Water meter {meter.number or meter_id}"
-            import_history(self.hass, meter_id, name, series, reading.last_reading)
-            yesterday = (today - timedelta(days=1)).date()
             totals = daily_totals(series)
+            base = self._async_statistics_base(meter_id, totals, reading.last_reading)
+            import_history(
+                self.hass, meter_id, name, series, reading.last_reading, base
+            )
+            yesterday = (today - timedelta(days=1)).date()
             if (value := totals.get(yesterday)) is not None:
                 self.yesterday[meter_id] = value
             week = [
@@ -220,3 +224,17 @@ class CitycomDataUpdateCoordinator(DataUpdateCoordinator[dict[int, "MeterReading
             ]
             if week:
                 self.last_7_days[meter_id] = round(sum(week), 3)
+
+    def _async_statistics_base(
+        self, meter_id: int, totals: dict, last_reading: float | None
+    ) -> float:
+        """Return the stored base of a meter's statistics, saving it on first use."""
+        bases = dict(self.config_entry.data.get(CONF_STAT_BASE, {}))
+        key = str(meter_id)
+        if key not in bases and totals and last_reading is not None:
+            bases[key] = stat_base(totals, last_reading)
+            self.hass.config_entries.async_update_entry(
+                self.config_entry,
+                data={**self.config_entry.data, CONF_STAT_BASE: bases},
+            )
+        return bases.get(key, 0.0)

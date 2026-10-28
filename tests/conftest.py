@@ -14,6 +14,7 @@ from citycom_mv_api.models.jwt import JWT
 from citycom_mv_api.models.login_challenge import LoginChallenge
 from citycom_mv_api.models.Reading import MeterReadings
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.util import dt as dt_util
 
 from custom_components.citycom_mv_water_meter.const import (
     CONF_CODE_SENDER,
@@ -130,7 +131,7 @@ def mock_client():
 
     async def history(meter_id, period, from_date, to_date):
         series = ConsumptionTimeSeries()
-        today = datetime.now().date()
+        today = dt_util.now().date()
         series.add(today - timedelta(days=2), 1.0)
         series.add(today - timedelta(days=1), 2.0)
         series.add(today, 0.5)

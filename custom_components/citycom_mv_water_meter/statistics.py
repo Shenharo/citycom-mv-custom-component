@@ -37,10 +37,15 @@ def daily_totals(series: ConsumptionTimeSeries) -> dict[date, float]:
     return dict(sorted(totals.items()))
 
 
+def stat_base(totals: dict[date, float], last_reading: float) -> float:
+    """Return the meter reading before the first day of `totals`."""
+    return round(last_reading - sum(totals.values()), 4)
+
+
 def build_statistics(
-    totals: dict[date, float], last_reading: float
+    totals: dict[date, float], last_reading: float, base: float = 0.0
 ) -> list[StatisticData]:
-    """Build cumulative statistics that equal the meter reading.
+    """Build cumulative statistics, counted from `base`.
 
     Working back from the current reading keeps every import idempotent, so
     re-importing an overlapping window rewrites the same values.
@@ -51,7 +56,9 @@ def build_statistics(
         start = dt_util.as_utc(
             datetime.combine(day, time.min, tzinfo=dt_util.get_default_time_zone())
         )
-        stats.append(StatisticData(start=start, state=running, sum=running))
+        stats.append(
+            StatisticData(start=start, state=running - base, sum=running - base)
+        )
         running -= value
     stats.reverse()
     return stats
@@ -63,6 +70,7 @@ def import_history(
     name: str,
     series: ConsumptionTimeSeries,
     last_reading: float | None,
+    base: float = 0.0,
 ) -> None:
     """Write a meter's daily history as external statistics."""
     if DATA_INSTANCE not in hass.data:
@@ -80,5 +88,5 @@ def import_history(
         unit_of_measurement=UnitOfVolume.CUBIC_METERS,
     )
     async_add_external_statistics(
-        hass, metadata, build_statistics(totals, last_reading)
+        hass, metadata, build_statistics(totals, last_reading, base)
     )
