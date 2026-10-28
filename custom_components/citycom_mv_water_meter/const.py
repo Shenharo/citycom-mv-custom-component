@@ -48,3 +48,8 @@ CONF_PRICE_DRAIN = "price_drain"
 CONF_PRICE_FIXED = "price_fixed"
 CONF_ALLOWANCE = "allowance_per_person"
 CONF_PERSONS = "persons"
+
+# Per meter, the meter reading before the first imported day. Statistics sums
+# start from zero by subtracting it, so the first day is not a jump of the
+# whole reading in the Energy dashboard.
+CONF_STAT_BASE = "stat_base"

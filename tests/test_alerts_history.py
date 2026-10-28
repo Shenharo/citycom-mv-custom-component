@@ -8,6 +8,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.citycom_mv_water_meter.const import CONF_TOKEN, DOMAIN
 from custom_components.citycom_mv_water_meter.statistics import (
     build_statistics,
+    stat_base,
     statistic_id,
 )
 
@@ -59,4 +60,21 @@ def test_build_statistics_is_anchored_to_current_reading():
     totals = {date(2026, 10, 25): 1.0, date(2026, 10, 26): 2.0, date(2026, 10, 27): 0.5}
     stats = build_statistics(totals, 100.0)
     assert [s["sum"] for s in stats] == [97.5, 99.5, 100.0]
+    # Counted from the reading before the first day, the first day is its own use.
+    base = stat_base(totals, 100.0)
+    assert base == 96.5
+    stats = build_statistics(totals, 100.0, base)
+    assert [round(s["sum"], 4) for s in stats] == [1.0, 3.0, 3.5]
     assert statistic_id(111) == "citycom_mv_water_meter:meter_111_consumption"
+
+
+async def test_statistics_base_is_saved_once(hass, mock_client, mock_imap):
+    entry = await _setup(hass)
+
+    # Mocked history 1.0 + 2.0 + 0.5 and a reading of 100.25.
+    assert entry.data["stat_base"]["111"] == 96.75
+    base = mock_client.import_history.call_args_list[0].args[-1]
+    assert base == 96.75
+
+    await entry.runtime_data.async_refresh()
+    assert entry.data["stat_base"]["111"] == 96.75
