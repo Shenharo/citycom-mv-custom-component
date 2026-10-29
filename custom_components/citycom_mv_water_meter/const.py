@@ -53,3 +53,14 @@ CONF_PERSONS = "persons"
 # start from zero by subtracting it, so the first day is not a jump of the
 # whole reading in the Energy dashboard.
 CONF_STAT_BASE = "stat_base"
+
+# Optional: a possible-leak sensor (night flow above this many litres per hour)
+# and a monthly budget in m3. The related sensors exist only when set.
+CONF_LEAK_THRESHOLD = "leak_threshold"
+CONF_BUDGET = "monthly_budget_m3"
+# Night flow is judged between two readings that both fall in this window.
+NIGHT_START_HOUR = 22
+NIGHT_END_HOUR = 7
+NIGHT_MIN_HOURS = 2
+# A night flow older than this no longer counts as a possible leak.
+NIGHT_FLOW_MAX_AGE = timedelta(hours=36)

@@ -14,7 +14,7 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.const import EntityCategory
 from homeassistant.util import dt as dt_util
 
-from .const import STALE_READING_AFTER
+from .const import CONF_LEAK_THRESHOLD, NIGHT_FLOW_MAX_AGE, STALE_READING_AFTER
 from .entity import CitycomMeterEntity
 
 if TYPE_CHECKING:
@@ -31,6 +31,8 @@ class CitycomBinarySensorDescription(BinarySensorEntityDescription):
 
     is_on_fn: Callable[[CitycomDataUpdateCoordinator, int], bool | None]
     attrs_fn: Callable[[CitycomDataUpdateCoordinator, int], dict[str, Any]] | None = None
+    # Created only when this option is set.
+    requires_option: str | None = None
 
 
 def _alerts_on(coordinator: CitycomDataUpdateCoordinator, meter_id: int) -> bool | None:
@@ -69,6 +71,27 @@ def _not_reporting(
     return dt_util.utcnow() - last > STALE_READING_AFTER
 
 
+def _possible_leak(
+    coordinator: CitycomDataUpdateCoordinator, meter_id: int
+) -> bool | None:
+    measured = coordinator.night_flow.get(meter_id)
+    if measured is None:
+        return False
+    flow, when = measured
+    if dt_util.utcnow() - when > NIGHT_FLOW_MAX_AGE:
+        return False
+    return flow > coordinator.config_entry.options[CONF_LEAK_THRESHOLD]
+
+
+def _leak_attrs(
+    coordinator: CitycomDataUpdateCoordinator, meter_id: int
+) -> dict[str, Any]:
+    measured = coordinator.night_flow.get(meter_id)
+    if measured is None:
+        return {}
+    return {"night_flow_l_per_h": measured[0], "measured_at": measured[1].isoformat()}
+
+
 BINARY_SENSORS: tuple[CitycomBinarySensorDescription, ...] = (
     CitycomBinarySensorDescription(
         key="alert",
@@ -84,6 +107,14 @@ BINARY_SENSORS: tuple[CitycomBinarySensorDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         is_on_fn=_not_reporting,
     ),
+    CitycomBinarySensorDescription(
+        key="possible_leak",
+        translation_key="possible_leak",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        is_on_fn=_possible_leak,
+        attrs_fn=_leak_attrs,
+        requires_option=CONF_LEAK_THRESHOLD,
+    ),
 )
 
 
@@ -98,6 +129,8 @@ async def async_setup_entry(
         CitycomMeterBinarySensor(coordinator, meter, description)
         for meter in coordinator.meters.values()
         for description in BINARY_SENSORS
+        if not description.requires_option
+        or entry.options.get(description.requires_option)
     )
 
 

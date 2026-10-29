@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import deque
 from datetime import timedelta
 from typing import TYPE_CHECKING
 
@@ -25,6 +26,7 @@ from .const import (
     LOGGER,
     TOKEN_RENEW_MARGIN,
 )
+from .analysis import night_flow
 from .statistics import daily_totals, import_history, stat_base
 from .imap import ImapAuthError, ImapError, ImapSettings, async_wait_for_code
 
@@ -83,6 +85,13 @@ class CitycomDataUpdateCoordinator(DataUpdateCoordinator[dict[int, "MeterReading
         # Total consumption of the 7 full days before today, per meter.
         self.last_7_days: dict[int, float] = {}
         self._history_fetched: datetime | None = None
+        # The last distinct readings of a meter, as (time, m3), newest last.
+        self._readings_log: dict[int, deque[tuple[datetime, float]]] = {}
+        # Latest night flow per meter: (litres per hour, when it was measured).
+        self.night_flow: dict[int, tuple[float, datetime]] = {}
+        # Alert changes of the latest update, per meter, for the event entities.
+        self.alert_events: dict[int, list[dict]] = {}
+        self._alerts_seen: dict[int, set[tuple]] = {}
 
     async def _async_ensure_token(self, *, force: bool = False) -> None:
         """Log in again when the token is missing or about to expire."""
@@ -153,9 +162,25 @@ class CitycomDataUpdateCoordinator(DataUpdateCoordinator[dict[int, "MeterReading
                     readings[meter_id] = reading
         except CitycomApiClientError as err:
             raise UpdateFailed(err) from err
+        self._update_night_flow(readings)
         await self._async_update_alerts()
         await self._async_update_history(readings)
         return readings
+
+    def _update_night_flow(self, readings: dict[int, MeterReadings]) -> None:
+        """Keep the distinct readings and judge the flow between night readings."""
+        zone = dt_util.get_default_time_zone()
+        for meter_id, reading in readings.items():
+            when, value = reading.last_reading_date, reading.last_reading
+            if when is None or value is None:
+                continue
+            when = when if when.tzinfo else when.replace(tzinfo=zone)
+            log = self._readings_log.setdefault(meter_id, deque(maxlen=12))
+            if log and log[-1][0] >= when:
+                continue
+            if log and (flow := night_flow(log[-1], (when, value))) is not None:
+                self.night_flow[meter_id] = (flow, when)
+            log.append((when, value))
 
     async def _async_update_alerts(self) -> None:
         """Fetch active alerts; failures keep the last known alerts."""
@@ -173,6 +198,31 @@ class CitycomDataUpdateCoordinator(DataUpdateCoordinator[dict[int, "MeterReading
                 LOGGER.debug("Alerts of meter %s unavailable: %s", meter_id, err)
         if any(self.alerts.values()) and not self.alert_types:
             await self._async_load_alert_types()
+        self._update_alert_events()
+
+    def _update_alert_events(self) -> None:
+        """Describe the alerts that appeared or cleared since the last update."""
+        events: dict[int, list[dict]] = {}
+        for meter_id, alerts in self.alerts.items():
+            current = {(a.alert_type_id, a.date or a.start_date) for a in alerts}
+            if meter_id in self._alerts_seen:
+                for type_id, when in current - self._alerts_seen[meter_id]:
+                    events.setdefault(meter_id, []).append(
+                        self._alert_event("alert", type_id, when)
+                    )
+                for type_id, when in self._alerts_seen[meter_id] - current:
+                    events.setdefault(meter_id, []).append(
+                        self._alert_event("alert_cleared", type_id, when)
+                    )
+            self._alerts_seen[meter_id] = current
+        self.alert_events = events
+
+    def _alert_event(self, kind: str, type_id: int | None, when) -> dict:
+        return {
+            "event_type": kind,
+            "type": self.alert_types.get(type_id) or type_id,
+            "date": when.isoformat() if when else None,
+        }
 
     async def _async_load_alert_types(self) -> None:
         """Fetch the readable names of the alert types; ids are shown without it."""

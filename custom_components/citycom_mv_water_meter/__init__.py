@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
 
-PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.EVENT, Platform.SENSOR]
 
 type CitycomConfigEntry = ConfigEntry[CitycomDataUpdateCoordinator]
 
@@ -61,7 +61,9 @@ def _async_remove_stale_devices(
     coordinator: CitycomDataUpdateCoordinator,
 ) -> None:
     """Remove devices of meters that were replaced or removed from the account."""
+    # The account device (login expiry) is kept along with the meters.
     current = {(DOMAIN, str(meter_id)) for meter_id in coordinator.meters}
+    current.add((DOMAIN, entry.entry_id))
     device_registry = dr.async_get(hass)
     for device in dr.async_entries_for_config_entry(device_registry, entry.entry_id):
         if not device.identifiers & current:

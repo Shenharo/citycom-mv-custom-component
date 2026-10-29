@@ -125,7 +125,8 @@ async def test_stale_meter_device_is_removed(hass, mock_client, mock_imap):
         for device in dr.async_entries_for_config_entry(device_registry, entry.entry_id)
         for identifier in device.identifiers
     }
-    assert identifiers == {(DOMAIN, "111"), (DOMAIN, "222")}
+    # The account device (login expiry) stays along with the meters.
+    assert identifiers == {(DOMAIN, "111"), (DOMAIN, "222"), (DOMAIN, entry.entry_id)}
 
 
 async def test_options_change_interval_and_folder(hass, mock_client, mock_imap):
