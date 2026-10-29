@@ -14,6 +14,11 @@ For each meter:
 | Consumption yesterday | Total water used the previous day, in m³. |
 | Consumption last 7 days | Total water used over the 7 full days before today, in m³. |
 | Cost this month (estimate) | Only when prices are set (see below). In your Home Assistant currency. |
+| Projected consumption this month / Budget used | Only when a monthly budget (m³) is set under Configure. |
+| Projected cost this month | Only when prices are set. |
+| Possible leak (binary) | Only when a leak threshold is set. On when the average flow between two night readings (both between 22:00 and 07:00, at least 2 hours apart) is above the threshold in litres per hour. Meters report every few hours, so this is a coarse check. |
+| Alert (event) | Fires `alert` or `alert_cleared` when a Citycom alert appears or clears. Alerts that exist at startup are not reported. |
+| Login expires (diagnostic) | When the current Citycom login expires, on a separate "Citycom account" device. |
 | Alert (binary) | On while Citycom reports an active alert (leak, abnormal flow...). The `alerts` attribute lists them. |
 | Not reporting (binary, diagnostic) | On when the meter has not reported for 24 hours. |
 

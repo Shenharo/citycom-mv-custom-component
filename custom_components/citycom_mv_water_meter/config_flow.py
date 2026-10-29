@@ -28,6 +28,8 @@ from .api import (
 )
 from .const import (
     CONF_ALLOWANCE,
+    CONF_BUDGET,
+    CONF_LEAK_THRESHOLD,
     CONF_PERSONS,
     CONF_PRICE_DRAIN,
     CONF_PRICE_FIXED,
@@ -344,6 +346,14 @@ class CitycomOptionsFlow(OptionsFlowWithReload):
                         CONF_PERSONS,
                         description={"suggested_value": current.get(CONF_PERSONS)},
                     ): _number(step=1),
+                    vol.Optional(
+                        CONF_BUDGET,
+                        description={"suggested_value": current.get(CONF_BUDGET)},
+                    ): _number(),
+                    vol.Optional(
+                        CONF_LEAK_THRESHOLD,
+                        description={"suggested_value": current.get(CONF_LEAK_THRESHOLD)},
+                    ): _number(),
                 }
             ),
         )

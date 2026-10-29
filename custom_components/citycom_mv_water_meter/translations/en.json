@@ -58,6 +58,18 @@
             },
             "cost_this_month": {
                 "name": "Cost this month (estimate)"
+            },
+            "projected_consumption": {
+                "name": "Projected consumption this month"
+            },
+            "budget_used": {
+                "name": "Budget used"
+            },
+            "projected_cost": {
+                "name": "Projected cost this month"
+            },
+            "login_expires": {
+                "name": "Login expires"
             }
         },
         "binary_sensor": {
@@ -66,6 +78,22 @@
             },
             "not_reporting": {
                 "name": "Not reporting"
+            },
+            "possible_leak": {
+                "name": "Possible leak"
+            }
+        },
+        "event": {
+            "alert_event": {
+                "name": "Alert",
+                "state_attributes": {
+                    "event_type": {
+                        "state": {
+                            "alert": "Alert",
+                            "alert_cleared": "Alert cleared"
+                        }
+                    }
+                }
             }
         }
     },
@@ -73,7 +101,7 @@
         "step": {
             "init": {
                 "title": "Citycom MV options",
-                "description": "Polling reads data with the current login and sends no email. A code email is sent only when the login expires, about every 9 hours. Set the regular price to add a monthly cost estimate sensor. Water up to the allowance times the number of people is charged at the regular price, the rest at the over-usage price.",
+                "description": "Polling reads data with the current login and sends no email. A code email is sent only when the login expires, about every 9 hours. Set the regular price to add cost sensors. Set a monthly budget to add budget sensors. Set the leak threshold to add a possible-leak sensor, which compares the flow between two night readings (22:00-07:00).",
                 "data": {
                     "update_interval": "Update interval (minutes)",
                     "imap_folder": "Mail folder to look for the code email",
@@ -82,7 +110,9 @@
                     "price_drain": "Drain (sewage) price per m³",
                     "price_fixed": "Fixed monthly fee",
                     "allowance_per_person": "Monthly allowance per person (m³)",
-                    "persons": "Number of people (leave empty to use your Citycom account)"
+                    "persons": "Number of people (leave empty to use your Citycom account)",
+                    "monthly_budget_m3": "Monthly budget (m³)",
+                    "leak_threshold": "Possible leak: night flow above (litres per hour)"
                 },
                 "data_description": {
                     "imap_folder": "If a Gmail filter archives the code emails, use [Gmail]/All Mail."

@@ -14,5 +14,80 @@
             "connection": "غير قادر على الاتصال بالخادم.",
             "unknown": "حدث خطأ غير معروف."
         }
+    },
+    "entity": {
+        "sensor": {
+            "meter_reading": {
+                "name": "قراءة العداد"
+            },
+            "consumption_current_month": {
+                "name": "استهلاك هذا الشهر"
+            },
+            "last_reading_date": {
+                "name": "وقت آخر قراءة"
+            },
+            "consumption_yesterday": {
+                "name": "استهلاك أمس"
+            },
+            "consumption_last_7_days": {
+                "name": "استهلاك آخر 7 أيام"
+            },
+            "cost_this_month": {
+                "name": "تكلفة هذا الشهر (تقدير)"
+            },
+            "projected_consumption": {
+                "name": "الاستهلاك المتوقع هذا الشهر"
+            },
+            "budget_used": {
+                "name": "الميزانية المستخدمة"
+            },
+            "projected_cost": {
+                "name": "التكلفة المتوقعة هذا الشهر"
+            },
+            "login_expires": {
+                "name": "انتهاء صلاحية الدخول"
+            }
+        },
+        "binary_sensor": {
+            "alert": {
+                "name": "تنبيه"
+            },
+            "not_reporting": {
+                "name": "العداد لا يرسل قراءات"
+            },
+            "possible_leak": {
+                "name": "احتمال وجود تسرب"
+            }
+        },
+        "event": {
+            "alert_event": {
+                "name": "تنبيه",
+                "state_attributes": {
+                    "event_type": {
+                        "state": {
+                            "alert": "تنبيه",
+                            "alert_cleared": "تم إغلاق التنبيه"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "description": "حدد السعر العادي لإضافة حساسات التكلفة. حدد ميزانية شهرية لإضافة حساسات الميزانية. حدد حد التسرب لإضافة حساس احتمال التسرب، الذي يقارن التدفق بين قراءتين ليليتين (22:00-07:00).",
+                "data": {
+                    "price_regular": "السعر العادي لكل م³",
+                    "price_over": "سعر تجاوز الحصة لكل م³",
+                    "price_drain": "سعر الصرف لكل م³",
+                    "price_fixed": "الرسوم الشهرية الثابتة",
+                    "allowance_per_person": "الحصة الشهرية لكل شخص (م³)",
+                    "persons": "عدد الأشخاص (اتركه فارغاً لاستخدام حساب Citycom)",
+                    "monthly_budget_m3": "الميزانية الشهرية (م³)",
+                    "leak_threshold": "احتمال تسرب: التدفق الليلي أعلى من (لتر في الساعة)"
+                }
+            }
+        }
     }
 }
